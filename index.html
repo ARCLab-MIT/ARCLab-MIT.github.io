@@ -1,375 +1,473 @@
-
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Space AI Challenge Leaderboard</title>
-        
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEAVR Sim - GPU-Accelerated RL & Imitation Learning</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
+        :root {
+            --primary-color: #4f6f52;      /* olive green */
+            --secondary-color: #3b4c2a;   /* deep olive */
+            --accent-color: #6b4226;      /* chocolate brown */
+            --dark-bg: #6b4226;           /* chocolate brown background */
+            --card-bg: #f8f1e5;           /* lighter cream */
+            --text-primary: #2f271f;      /* dark brown text */
+            --text-secondary: #5c4a3d;    /* medium brown text */
+            --border-color: #d5c8b6;      /* soft tan */
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: 'Roboto', sans-serif;
-            background-image: url('./images/background.png');
-            background-size: cover;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-        }
-        .gradient-wrapper {
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.5), transparent);
-            backdrop-filter: blur(4px);
-            padding: 4rem 2rem 2rem 2rem;
-            width: 100%;
-        }
-        h1.title {
-            text-align: center;
-            color: white;
-            margin-bottom: 0.3rem;
-        }
-        h2.subtitle {
-            text-align: center;
-            color: LightGray;
-            margin-bottom: 2rem;
-            font-size: 1.2rem;
-        }
-        .challenge-image {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #3b2c1f 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
         }
 
-        .challenge-image img {
-            display: block;
-            max-height: 250px;
-            width: auto;
-            -webkit-mask-image: radial-gradient(ellipse at center, white 55%, transparent 50%);
-            mask-image: radial-gradient(ellipse at center, white 55%, transparent 70%);
-            -webkit-mask-size: cover;
-            mask-size: cover;
-        }
-
-        table {
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
-            width: 90%;
-            border-collapse: collapse;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 4rem 0 2rem;
+            margin-bottom: 3rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fae6de;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #fae6de;
+            margin-bottom: 2rem;
+        }
+
+        .badges {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: var(--accent-color);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .demo-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(8px);
-        }
-        html, body {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .content-wrapper {
-            flex: 1; /* Esto hace que el contenido crezca para empujar el footer */
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(75, 93, 59, 0.25);
         }
 
-        .footer {
-            margin-top: auto;
-            padding: 3rem 2rem;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7), #000000);
-            text-align: center;
+        .demo-media {
             width: 100%;
+            height: auto;
+            display: block;
+            background: #e4d9c8;
         }
-        .footer .sponsor-logos img {
-            height: 60px;
-            margin: 0 2rem;
-        }
-        .footer img.main {
-            height: 80px;
-            margin-top: 1rem;
-        }
-        .footer p {
-            font-size: 0.9rem;
-            color: #ccc;
-            margin-top: 0.5rem;
-        }
-        .note {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #FFF;
-            margin-top: 1rem;
-            }
-    </style>
-    
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    </head>
-    <body>
-        <div class="gradient-wrapper">
-            <div class="challenge-image">
-                <img src="./images/challenge_image.jpg" alt="Challenge Image">
-            </div>
-            <h1 class="title">🚀 STORM-AI Challenge – Official Phase 1 Leaderboard</h1>
-            <h2 class="subtitle">MIT ARCLab Prize for Space AI Innovation 2025</h2>
-            <style type="text/css">
-#T_96545 th {
-  background-color: #002664;
-  color: white;
-  padding: 14px;
-  font-size: 16px;
-}
-#T_96545 td {
-  padding: 12px;
-  text-align: center;
-  border: 1px solid #ccc;
-  font-size: 15px;
-  color: #333;
-}
-#T_96545_row0_col0, #T_96545_row0_col1, #T_96545_row0_col2, #T_96545_row0_col3, #T_96545_row0_col4, #T_96545_row0_col5, #T_96545_row0_col6, #T_96545_row0_col7 {
-  background-color: rgba(255,215,0,0.8);
-  font-weight: bold;
-}
-#T_96545_row1_col0, #T_96545_row1_col1, #T_96545_row1_col2, #T_96545_row1_col3, #T_96545_row1_col4, #T_96545_row1_col5, #T_96545_row1_col6, #T_96545_row1_col7 {
-  background-color: rgba(188,198,204,0.8);
-  font-weight: bold;
-}
-#T_96545_row2_col0, #T_96545_row2_col1, #T_96545_row2_col2, #T_96545_row2_col3, #T_96545_row2_col4, #T_96545_row2_col5, #T_96545_row2_col6, #T_96545_row2_col7 {
-  background-color: rgba(205,127,50,0.8);
-  font-weight: bold;
-}
-#T_96545_row3_col0, #T_96545_row3_col1, #T_96545_row3_col2, #T_96545_row3_col3, #T_96545_row3_col4, #T_96545_row3_col5, #T_96545_row3_col6, #T_96545_row3_col7 {
-  background-color: rgb(122,125,127);
-}
-#T_96545_row4_col0, #T_96545_row4_col1, #T_96545_row4_col2, #T_96545_row4_col3, #T_96545_row4_col4, #T_96545_row4_col5, #T_96545_row4_col6, #T_96545_row4_col7 {
-  background-color: rgb(137,140,142);
-}
-#T_96545_row5_col0, #T_96545_row5_col1, #T_96545_row5_col2, #T_96545_row5_col3, #T_96545_row5_col4, #T_96545_row5_col5, #T_96545_row5_col6, #T_96545_row5_col7 {
-  background-color: rgb(152,155,157);
-}
-#T_96545_row6_col0, #T_96545_row6_col1, #T_96545_row6_col2, #T_96545_row6_col3, #T_96545_row6_col4, #T_96545_row6_col5, #T_96545_row6_col6, #T_96545_row6_col7 {
-  background-color: rgb(167,170,172);
-}
-#T_96545_row7_col0, #T_96545_row7_col1, #T_96545_row7_col2, #T_96545_row7_col3, #T_96545_row7_col4, #T_96545_row7_col5, #T_96545_row7_col6, #T_96545_row7_col7 {
-  background-color: rgb(182,185,187);
-}
-#T_96545_row8_col0, #T_96545_row8_col1, #T_96545_row8_col2, #T_96545_row8_col3, #T_96545_row8_col4, #T_96545_row8_col5, #T_96545_row8_col6, #T_96545_row8_col7 {
-  background-color: rgb(197,200,202);
-}
-#T_96545_row13_col0, #T_96545_row13_col1, #T_96545_row13_col2, #T_96545_row13_col3, #T_96545_row13_col4, #T_96545_row13_col5, #T_96545_row13_col6, #T_96545_row13_col7, #T_96545_row14_col0, #T_96545_row14_col1, #T_96545_row14_col2, #T_96545_row14_col3, #T_96545_row14_col4, #T_96545_row14_col5, #T_96545_row14_col6, #T_96545_row14_col7, #T_96545_row15_col0, #T_96545_row15_col1, #T_96545_row15_col2, #T_96545_row15_col3, #T_96545_row15_col4, #T_96545_row15_col5, #T_96545_row15_col6, #T_96545_row15_col7, #T_96545_row16_col0, #T_96545_row16_col1, #T_96545_row16_col2, #T_96545_row16_col3, #T_96545_row16_col4, #T_96545_row16_col5, #T_96545_row16_col6, #T_96545_row16_col7, #T_96545_row17_col0, #T_96545_row17_col1, #T_96545_row17_col2, #T_96545_row17_col3, #T_96545_row17_col4, #T_96545_row17_col5, #T_96545_row17_col6, #T_96545_row17_col7 {
-  background-color: rgba(255,0,0,0.3);
-}
-</style>
-<table id="T_96545">
-  <thead>
-    <tr>
-      <th id="T_96545_level0_col0" class="col_heading level0 col0" >Rank</th>
-      <th id="T_96545_level0_col1" class="col_heading level0 col1" >Participant</th>
-      <th id="T_96545_level0_col2" class="col_heading level0 col2" >Team</th>
-      <th id="T_96545_level0_col3" class="col_heading level0 col3" >Submission ID</th>
-      <th id="T_96545_level0_col4" class="col_heading level0 col4" >Public Score</th>
-      <th id="T_96545_level0_col5" class="col_heading level0 col5" >Private Score</th>
-      <th id="T_96545_level0_col6" class="col_heading level0 col6" >Model Score $$(M)$$</th>
-      <th id="T_96545_level0_col7" class="col_heading level0 col7" >Normalized Model Score $$(M_{norm})$$</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td id="T_96545_row0_col0" class="data row0 col0" >1</td>
-      <td id="T_96545_row0_col1" class="data row0 col1" >🥇 nooby</td>
-      <td id="T_96545_row0_col2" class="data row0 col2" >Bimasakti</td>
-      <td id="T_96545_row0_col3" class="data row0 col3" >274725</td>
-      <td id="T_96545_row0_col4" class="data row0 col4" >0.750402</td>
-      <td id="T_96545_row0_col5" class="data row0 col5" >0.443991</td>
-      <td id="T_96545_row0_col6" class="data row0 col6" >0.704441</td>
-      <td id="T_96545_row0_col7" class="data row0 col7" >1.000000</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row1_col0" class="data row1 col0" >2</td>
-      <td id="T_96545_row1_col1" class="data row1 col1" >🥈 btran</td>
-      <td id="T_96545_row1_col2" class="data row1 col2" >Millenial-UIP</td>
-      <td id="T_96545_row1_col3" class="data row1 col3" >273740</td>
-      <td id="T_96545_row1_col4" class="data row1 col4" >0.731897</td>
-      <td id="T_96545_row1_col5" class="data row1 col5" >0.259576</td>
-      <td id="T_96545_row1_col6" class="data row1 col6" >0.661048</td>
-      <td id="T_96545_row1_col7" class="data row1 col7" >0.938402</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row2_col0" class="data row2 col0" >3</td>
-      <td id="T_96545_row2_col1" class="data row2 col1" >🥉 cteceliker</td>
-      <td id="T_96545_row2_col2" class="data row2 col2" >cteceliker</td>
-      <td id="T_96545_row2_col3" class="data row2 col3" >274632</td>
-      <td id="T_96545_row2_col4" class="data row2 col4" >0.671236</td>
-      <td id="T_96545_row2_col5" class="data row2 col5" >-0.033082</td>
-      <td id="T_96545_row2_col6" class="data row2 col6" >0.565588</td>
-      <td id="T_96545_row2_col7" class="data row2 col7" >0.802890</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row3_col0" class="data row3 col0" >4</td>
-      <td id="T_96545_row3_col1" class="data row3 col1" >mattmotoki</td>
-      <td id="T_96545_row3_col2" class="data row3 col2" >mattmotoki</td>
-      <td id="T_96545_row3_col3" class="data row3 col3" >274771</td>
-      <td id="T_96545_row3_col4" class="data row3 col4" >0.727581</td>
-      <td id="T_96545_row3_col5" class="data row3 col5" >-0.561337</td>
-      <td id="T_96545_row3_col6" class="data row3 col6" >0.534243</td>
-      <td id="T_96545_row3_col7" class="data row3 col7" >0.758393</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row4_col0" class="data row4 col0" >5</td>
-      <td id="T_96545_row4_col1" class="data row4 col1" >atillasaadat</td>
-      <td id="T_96545_row4_col2" class="data row4 col2" >SAADAT</td>
-      <td id="T_96545_row4_col3" class="data row4 col3" >274728</td>
-      <td id="T_96545_row4_col4" class="data row4 col4" >0.567543</td>
-      <td id="T_96545_row4_col5" class="data row4 col5" >0.115586</td>
-      <td id="T_96545_row4_col6" class="data row4 col6" >0.499750</td>
-      <td id="T_96545_row4_col7" class="data row4 col7" >0.709428</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row5_col0" class="data row5 col0" >6</td>
-      <td id="T_96545_row5_col1" class="data row5 col1" >jaikamal</td>
-      <td id="T_96545_row5_col2" class="data row5 col2" >jaikamal</td>
-      <td id="T_96545_row5_col3" class="data row5 col3" >272278</td>
-      <td id="T_96545_row5_col4" class="data row5 col4" >0.530500</td>
-      <td id="T_96545_row5_col5" class="data row5 col5" >-0.021619</td>
-      <td id="T_96545_row5_col6" class="data row5 col6" >0.447682</td>
-      <td id="T_96545_row5_col7" class="data row5 col7" >0.635514</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row6_col0" class="data row6 col0" >7</td>
-      <td id="T_96545_row6_col1" class="data row6 col1" >bjoshi</td>
-      <td id="T_96545_row6_col2" class="data row6 col2" >Digantara</td>
-      <td id="T_96545_row6_col3" class="data row6 col3" >274387</td>
-      <td id="T_96545_row6_col4" class="data row6 col4" >0.801401</td>
-      <td id="T_96545_row6_col5" class="data row6 col5" >-1.992795</td>
-      <td id="T_96545_row6_col6" class="data row6 col6" >0.382272</td>
-      <td id="T_96545_row6_col7" class="data row6 col7" >0.542660</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row7_col0" class="data row7 col0" >8</td>
-      <td id="T_96545_row7_col1" class="data row7 col1" >isaac43</td>
-      <td id="T_96545_row7_col2" class="data row7 col2" >ls_Fr</td>
-      <td id="T_96545_row7_col3" class="data row7 col3" >274337</td>
-      <td id="T_96545_row7_col4" class="data row7 col4" >0.269002</td>
-      <td id="T_96545_row7_col5" class="data row7 col5" >-0.112947</td>
-      <td id="T_96545_row7_col6" class="data row7 col6" >0.211710</td>
-      <td id="T_96545_row7_col7" class="data row7 col7" >0.300536</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row8_col0" class="data row8 col0" >9</td>
-      <td id="T_96545_row8_col1" class="data row8 col1" >manument</td>
-      <td id="T_96545_row8_col2" class="data row8 col2" >JMU-ARIES</td>
-      <td id="T_96545_row8_col3" class="data row8 col3" >271699</td>
-      <td id="T_96545_row8_col4" class="data row8 col4" >0.496734</td>
-      <td id="T_96545_row8_col5" class="data row8 col5" >-1.831924</td>
-      <td id="T_96545_row8_col6" class="data row8 col6" >0.147435</td>
-      <td id="T_96545_row8_col7" class="data row8 col7" >0.209294</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row9_col0" class="data row9 col0" ></td>
-      <td id="T_96545_row9_col1" class="data row9 col1" >beckja</td>
-      <td id="T_96545_row9_col2" class="data row9 col2" >Astrokinetix</td>
-      <td id="T_96545_row9_col3" class="data row9 col3" >249725</td>
-      <td id="T_96545_row9_col4" class="data row9 col4" >-0.347733</td>
-      <td id="T_96545_row9_col5" class="data row9 col5" >-0.578014</td>
-      <td id="T_96545_row9_col6" class="data row9 col6" >-0.382275</td>
-      <td id="T_96545_row9_col7" class="data row9 col7" >-0.542665</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row10_col0" class="data row10 col0" ></td>
-      <td id="T_96545_row10_col1" class="data row10 col1" >topazai</td>
-      <td id="T_96545_row10_col2" class="data row10 col2" >topazai</td>
-      <td id="T_96545_row10_col3" class="data row10 col3" >258761</td>
-      <td id="T_96545_row10_col4" class="data row10 col4" >-1.938614</td>
-      <td id="T_96545_row10_col5" class="data row10 col5" >-0.216933</td>
-      <td id="T_96545_row10_col6" class="data row10 col6" >-1.680362</td>
-      <td id="T_96545_row10_col7" class="data row10 col7" >-2.385385</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row11_col0" class="data row11 col0" ></td>
-      <td id="T_96545_row11_col1" class="data row11 col1" >motoki</td>
-      <td id="T_96545_row11_col2" class="data row11 col2" >motoki</td>
-      <td id="T_96545_row11_col3" class="data row11 col3" >272006</td>
-      <td id="T_96545_row11_col4" class="data row11 col4" >-2.332130</td>
-      <td id="T_96545_row11_col5" class="data row11 col5" >-0.144599</td>
-      <td id="T_96545_row11_col6" class="data row11 col6" >-2.004001</td>
-      <td id="T_96545_row11_col7" class="data row11 col7" >-2.844811</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row12_col0" class="data row12 col0" ></td>
-      <td id="T_96545_row12_col1" class="data row12 col1" >eonia</td>
-      <td id="T_96545_row12_col2" class="data row12 col2" >eonia</td>
-      <td id="T_96545_row12_col3" class="data row12 col3" >273251</td>
-      <td id="T_96545_row12_col4" class="data row12 col4" >0.643250</td>
-      <td id="T_96545_row12_col5" class="data row12 col5" >-33.789626</td>
-      <td id="T_96545_row12_col6" class="data row12 col6" >-4.521682</td>
-      <td id="T_96545_row12_col7" class="data row12 col7" >-6.418826</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row13_col0" class="data row13 col0" ></td>
-      <td id="T_96545_row13_col1" class="data row13 col1" >degerd</td>
-      <td id="T_96545_row13_col2" class="data row13 col2" >JMU-ARIES</td>
-      <td id="T_96545_row13_col3" class="data row13 col3" >274366</td>
-      <td id="T_96545_row13_col4" class="data row13 col4" >0.495605</td>
-      <td id="T_96545_row13_col5" class="data row13 col5" >-1.740075</td>
-      <td id="T_96545_row13_col6" class="data row13 col6" >0.160253</td>
-      <td id="T_96545_row13_col7" class="data row13 col7" >0.227490</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row14_col0" class="data row14 col0" ></td>
-      <td id="T_96545_row14_col1" class="data row14 col1" >ariesk</td>
-      <td id="T_96545_row14_col2" class="data row14 col2" >JMU-ARIES</td>
-      <td id="T_96545_row14_col3" class="data row14 col3" >274487</td>
-      <td id="T_96545_row14_col4" class="data row14 col4" >0.468980</td>
-      <td id="T_96545_row14_col5" class="data row14 col5" >-1.773998</td>
-      <td id="T_96545_row14_col6" class="data row14 col6" >0.132533</td>
-      <td id="T_96545_row14_col7" class="data row14 col7" >0.188140</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row15_col0" class="data row15 col0" ></td>
-      <td id="T_96545_row15_col1" class="data row15 col1" >clownslr</td>
-      <td id="T_96545_row15_col2" class="data row15 col2" >Digantara</td>
-      <td id="T_96545_row15_col3" class="data row15 col3" >274912</td>
-      <td id="T_96545_row15_col4" class="data row15 col4" >0.022877</td>
-      <td id="T_96545_row15_col5" class="data row15 col5" >-1.036488</td>
-      <td id="T_96545_row15_col6" class="data row15 col6" >-0.136027</td>
-      <td id="T_96545_row15_col7" class="data row15 col7" >-0.193100</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row16_col0" class="data row16 col0" ></td>
-      <td id="T_96545_row16_col1" class="data row16 col1" >archanatrivedi</td>
-      <td id="T_96545_row16_col2" class="data row16 col2" >Digantara</td>
-      <td id="T_96545_row16_col3" class="data row16 col3" >273336</td>
-      <td id="T_96545_row16_col4" class="data row16 col4" >0.485108</td>
-      <td id="T_96545_row16_col5" class="data row16 col5" >0.214949</td>
-      <td id="T_96545_row16_col6" class="data row16 col6" >0.444584</td>
-      <td id="T_96545_row16_col7" class="data row16 col7" >0.631116</td>
-    </tr>
-    <tr>
-      <td id="T_96545_row17_col0" class="data row17 col0" ></td>
-      <td id="T_96545_row17_col1" class="data row17 col1" >vonnahmek</td>
-      <td id="T_96545_row17_col2" class="data row17 col2" >JMU-ARIES</td>
-      <td id="T_96545_row17_col3" class="data row17 col3" >270014</td>
-      <td id="T_96545_row17_col4" class="data row17 col4" >0.475030</td>
-      <td id="T_96545_row17_col5" class="data row17 col5" >0.010093</td>
-      <td id="T_96545_row17_col6" class="data row17 col6" >0.405289</td>
-      <td id="T_96545_row17_col7" class="data row17 col7" >0.575335</td>
-    </tr>
-  </tbody>
-</table>
 
-        <div class="note">
-<p><strong>Note:</strong> <u>Only the highest‐scoring public submission per team</u> is considered; <u>all other entries from the same team are excluded</u>. <u>Submissions with a negative model score</u> are also excluded. The leaderboard is then <u>ordered by descending Model Score</u> for the top ten eligible entries.</p>        
-        </div>
-        <br>
-        <div class="footer">
-            <div class="sponsor-logos">
-                <img src="./images/arclab_logo.png" alt="ARCLab Logo">
-                <img src="./images/mit_logo.png" alt="MIT Logo">
+        .demo-content {
+            padding: 1.5rem;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .demo-description {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .demo-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: rgba(79, 111, 82, 0.15);
+            border: 1px solid var(--primary-color);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--accent-color);
+        }
+
+        .features {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem 0;
+        }
+
+        .features h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .features ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .features li {
+            padding: 0.75rem;
+            background: rgba(79, 111, 82, 0.12);
+            border-left: 3px solid var(--primary-color);
+            padding-left: 1rem;
+        }
+
+        .datasets-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem 0;
+            text-align: center;
+        }
+
+        .datasets-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .datasets-section p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .datasets-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: #f8f1e5;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .datasets-link:hover {
+            background: var(--secondary-color);
+        }
+
+        .citations {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem 0;
+            text-align: left;
+        }
+
+        .citations h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-color);
+            text-align: center;
+        }
+
+        .citation-item {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(79, 111, 82, 0.08);
+            border-radius: 8px;
+        }
+
+        .citation-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .citation-item pre {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0.5rem 0;
+        }
+
+        .citation-item a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .citation-item a:hover {
+            color: var(--secondary-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 4rem;
+            border-top: 2px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .github-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: #f8f1e5;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .github-link:hover {
+            background: var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BEAVR Sim</h1>
+            <p class="subtitle">GPU-Accelerated RL & Imitation Learning for Robotic Manipulation</p>
+            <div class="badges">
+                <span class="badge">MuJoCo + MuJoCo Menagerie + Isaac Lab</span>
+                <span class="badge">LeRobot Compatible</span>
+                <span class="badge">GPU Acceleration</span>
+                <span class="badge">Parallel Environments</span>
+                <span class="badge">Task-Based Learning</span>
             </div>
-            <img class="main" src="./images/af_ai_accelerator.png" alt="Department of the Air Force Artificial Intelligence Accelerator">
-            <p>Cooperative Agreement Number FA8750-19-2-1000</p>
+        </header>
+
+        <div class="features">
+            <h2>Key Features</h2>
+            <ul>
+                <li>Capable of running parallel environments on a single GPU</li>
+                <li>Unified API for observations and actions via LeRobot</li>
+                <li>YAML-based robot configurations, which allow easy use of the entire MuJoCo Menagerie library</li>
+                <li>Flexible task and scene definitions allowing scene building (as seen below)</li>
+                <li>Support for RL and Imitation Learning on any LeRobot-compatible environment</li>
+                <li>4 pre-built scenes with 100 human demonstrations each collected via teleoperation using <a href="https://arclab-mit.github.io/beavr-landing/" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">BEAVR</a></li>
+                <li>Integration with Isaac Lab APIs</li>
+                <li>Fully compatible with LeRobot APIs for training and evaluation</li>
+            </ul>
         </div>
-    </body>
-    </html>
-    
+
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem; color: #fae6de;">Demonstrations</h2>
+        <p style="text-align: left; color: #fae6de; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.8;">Below are clips from datasets we collected with the <a href="https://arclab-mit.github.io/beavr-landing/" style="color: var(--primary-color); text-decoration: none; font-weight: 600; background: var(--card-bg); padding: 0.1rem 0.5rem; border-radius: 4px;">BEAVR</a> teleoperation system. Each dataset contains 100 demonstrations from four memory-based manipulation tasks.</p>
+
+        <div class="demo-grid">
+            <!-- Pick and Place Task -->
+            <div class="demo-card">
+                <img src="videos/pickplace.gif" alt="Pick and Place Task" class="demo-media">
+                <div class="demo-content">
+                    <h3 class="demo-title">Pick and Place</h3>
+                    <p class="demo-description">
+                        Simple manipulation task demonstrating object grasping and placement. 
+                        The system learns to pick up objects from randomized positions and place them at a target location,
+                    </p>
+                    <div class="demo-tags">
+                        <span class="tag">Manipulation</span>
+                        <span class="tag">Grasping</span>
+                        <span class="tag">IL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shell Game -->
+            <div class="demo-card">
+                <img src="videos/shellgame.gif" alt="Shell Game Task" class="demo-media">
+                <div class="demo-content">
+                    <h3 class="demo-title">Shell Game</h3>
+                    <p class="demo-description">
+                        Advanced memory/tracking and manipulation task where the robot must track the cup containing a concealed object. 
+                        This scene is designed to test object permanence and memory amid occlusions
+                        through imitation learning.
+                    </p>
+                    <div class="demo-tags">
+                        <span class="tag">Tracking</span>
+                        <span class="tag">Memory</span>
+                        <span class="tag">IL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Swap - Overhead View -->
+            <div class="demo-card">
+                <img src="videos/serverswap_overhead.gif" alt="Server Swap Overhead" class="demo-media">
+                <div class="demo-content">
+                    <h3 class="demo-title">Server Swap - Overhead View</h3>
+                    <p class="demo-description">
+                        Top-down perspective of a mobile manipulation task simulating server module replacement. 
+                        The robot coordinates its arm and mobile base to insert server components in the correct slot indicated by a transient LED (solid orange for 5s).
+                        This scene is complex, requiring manipulation, memory of the target slot, and movement across the scene.
+                    </p>
+                    <div class="demo-tags">
+                        <span class="tag">Egocentric</span>
+                        <span class="tag">Precision</span>
+                        <span class="tag">Assembly</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Swap - Ego View -->
+            <div class="demo-card">
+                <img src="videos/serverswap_ego.gif" alt="Server Swap Ego View" class="demo-media">
+                <div class="demo-content">
+                    <h3 class="demo-title">Server Swap - Egocentric View</h3>
+                    <p class="demo-description">
+                        First-person perspective of the server swap task, showing the detailed interaction 
+                        from the robot's viewpoint.
+                    </p>
+                    <div class="demo-tags">
+                        <span class="tag">Egocentric</span>
+                        <span class="tag">Precision</span>
+                        <span class="tag">Assembly</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vanishing Blueprint -->
+            <div class="demo-card">
+                <img src="videos/vanishing_blueprint.gif" alt="Vanishing Blueprint" class="demo-media">
+                <div class="demo-content">
+                    <h3 class="demo-title">Vanishing Blueprint</h3>
+                    <p class="demo-description">
+                        Manipulation and memory task testing the robot's ability to recall the correct order of objects for
+                        stacking. A blueprint is shown in the first 5s before vanishing, requiring the robot to remember the sequence while stacking.
+                    </p>
+                    <div class="demo-tags">
+                        <span class="tag">Stacking</span>
+                        <span class="tag">Memory</span>
+                        <span class="tag">Configuration</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="datasets-section">
+            <h2>Datasets on HuggingFace</h2>
+            <p>Access our pre-collected demonstration datasets for imitation learning research</p>
+            <a href="https://huggingface.co/collections/arclabmit/beavr-sim" class="datasets-link">View Datasets on HuggingFace 🤗</a>
+        </div>
+
+        <div class="citations">
+            <h3>Citations</h3>
+            
+            <div class="citation-item">
+                <h4>BEAVR-teleop</h4>
+                <pre>@misc{posadasnava2025beavr,
+  title         = {BEAVR: Bimanual, multi-Embodiment, Accessible, Virtual Reality Teleoperation System for Robots},
+  author        = {Alejandro Posadas-Nava and Alejandro Carrasco and Richard Linares},
+  year          = {2025},
+  eprint        = {2508.09606},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.RO},
+  note          = {Accepted for presentation at ICCR 2025, Kyoto},
+  url           = {https://arxiv.org/abs/2508.09606}
+}</pre>
+                <a href="https://github.com/ARCLab-MIT/beavr-bot" target="_blank">https://github.com/ARCLab-MIT/beavr-bot</a>
+            </div>
+
+            <div class="citation-item">
+                <h4>MuJoCo Menagerie</h4>
+                <pre>@software{menagerie2022github,
+  author = {Zakka, Kevin and Tassa, Yuval and {MuJoCo Menagerie Contributors}},
+  title = {{MuJoCo Menagerie: A collection of high-quality simulation models for MuJoCo}},
+  url = {https://github.com/google-deepmind/mujoco_menagerie},
+  year = {2022}
+}</pre>
+                <a href="https://github.com/google-deepmind/mujoco_menagerie" target="_blank">https://github.com/google-deepmind/mujoco_menagerie</a>
+            </div>
+
+            <div class="citation-item">
+                <h4>LeRobot</h4>
+                <pre>@misc{cadene2024lerobot,
+  author = {Cadene, Remi and Alibert, Simon and Soare, Alexander and Gallouedec, Quentin and Zouitine, Adil and Palma, Steven and Kooijmans, Pepijn and Aractingi, Michel and Shukor, Mustafa and Aubakir, Riyad and Charraut, Thomas and Liu, Shengxiang and Bogdan, Cosmin and Herdt, Kaat and Schoukens, Sanne and Sferrazza, Carmelo and Wassing, Nick and Taiana, Mariano and Coumans, Erwin and Clegg, Alexander and Strudel, Robin and Jeanneret, Robin},
+  title = {LeRobot: State-of-the-art Machine Learning for Real-World Robotics in Pytorch},
+  howpublished = "\url{https://github.com/huggingface/lerobot}",
+  year = {2024}
+}</pre>
+                <a href="https://github.com/huggingface/lerobot" target="_blank">https://github.com/huggingface/lerobot</a>
+            </div>
+
+            <div class="citation-item">
+                <h4>MJLab</h4>
+                <pre>@software{Zakka_mjlab_Isaac_Lab_2025,
+  author = {Zakka, Kevin and Yi, Brent and Liao, Qiayuan and Le Lay, Louis},
+  license = {Apache-2.0},
+  month = dec,
+  title = {{mjlab: Isaac Lab API, powered by MuJoCo-Warp, for RL and robotics research.}},
+  url = {https://github.com/mujocolab/mjlab},
+  version = {1.0.0},
+  year = {2025}
+}</pre>
+                <a href="https://github.com/mujocolab/mjlab" target="_blank">https://github.com/mujocolab/mjlab</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built at MIT's ARCLab for Space Robotics Research</p>
+            <a href="https://github.com/ARCLab-MIT" class="github-link">View on GitHub</a>
+        </footer>
+    </div>
+</body>
+</html>
